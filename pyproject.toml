@@ -1,9 +1,9 @@
 [project]
 name = "gps_integration"
 authors = [
-    { name = "Gpd Integration", email = "info@legends.com"}
+    { name = "Gps Integration", email = "info@legendsoft.com"}
 ]
-description = "Gpd Integration"
+description = "Gps Integration"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]

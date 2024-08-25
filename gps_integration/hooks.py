@@ -1,8 +1,8 @@
 app_name = "gps_integration"
 app_title = "Gps Integration"
-app_publisher = "Gpd Integration"
-app_description = "Gpd Integration"
-app_email = "info@legends.com"
+app_publisher = "Gps Integration"
+app_description = "Gps Integration"
+app_email = "info@legendsoft.com"
 app_license = "mit"
 # required_apps = []
 

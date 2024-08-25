@@ -1,6 +1,6 @@
 ## Gps Integration
 
-Gpd Integration
+Gps Integration
 
 #### License
 

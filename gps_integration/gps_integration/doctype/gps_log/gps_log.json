@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-08-24 08:36:20.914174",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "raw_data_section",
+  "data",
+  "column_break_frvc",
+  "received_at",
+  "useful_information_section",
+  "latitude",
+  "altitude",
+  "heading",
+  "column_break_ubxj",
+  "longitude",
+  "speed",
+  "device_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "raw_data_section",
+   "fieldtype": "Section Break",
+   "label": "Raw Data"
+  },
+  {
+   "fieldname": "data",
+   "fieldtype": "Small Text",
+   "label": "Data"
+  },
+  {
+   "fieldname": "column_break_frvc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "received_at",
+   "fieldtype": "Datetime",
+   "label": "Received at"
+  },
+  {
+   "fieldname": "useful_information_section",
+   "fieldtype": "Section Break",
+   "label": "Useful Information"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude"
+  },
+  {
+   "fieldname": "altitude",
+   "fieldtype": "Float",
+   "label": "Altitude"
+  },
+  {
+   "fieldname": "heading",
+   "fieldtype": "Float",
+   "label": "Heading"
+  },
+  {
+   "fieldname": "column_break_ubxj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude"
+  },
+  {
+   "fieldname": "speed",
+   "fieldtype": "Float",
+   "label": "Speed"
+  },
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "label": "Device ID"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-08-24 10:00:10.438904",
+ "modified_by": "Administrator",
+ "module": "Gps Integration",
+ "name": "GPS Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Guest",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
