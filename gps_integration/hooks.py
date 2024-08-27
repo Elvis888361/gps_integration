@@ -133,10 +133,10 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"gps_integration.tasks.all"
-# 	],
+scheduler_events = {
+	"all": [
+		"gps_integration.tcp_server.tcp_server.run_tcp_server"
+	],
 # 	"daily": [
 # 		"gps_integration.tasks.daily"
 # 	],
@@ -149,7 +149,7 @@ app_license = "mit"
 # 	"monthly": [
 # 		"gps_integration.tasks.monthly"
 # 	],
-# }
+}
 
 # Testing
 # -------
@@ -227,3 +227,7 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+fixtures = [
+    "Client Script",
+    "Custom Field"
+]
