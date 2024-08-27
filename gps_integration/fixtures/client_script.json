@@ -1,1 +1,13 @@
-[]
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Vehicle",
+  "enabled": 1,
+  "modified": "2024-08-27 18:31:09.579202",
+  "module": "Gps Integration",
+  "name": "Status Vehicle",
+  "script": "frappe.ui.form.on('Vehicle', {\n    refresh(frm) {\n        if (frm.doc.custom_imei_number) {  // Ensure the IMEI field is not empty\n            frappe.call({\n                method: 'gps_integration.services.rest.get_imei_status',\n                args: {\n                    'imei_to_search': frm.doc.custom_imei_number  // Pass the IMEI as an argument\n                },\n                callback: function(r) {\n                    if (!r.exc) {\n                        if (r.message) {\n                            if (r.message === \"Online\") {\n                                frm.set_intro(r.message, 'blue');\n                            } else if (r.message) {\n                                frm.set_intro(r.message, 'red');\n                            } else {\n                                frappe.msgprint(`IMEI: ${frm.doc.custom_imei_number} not found.`);\n                            }\n                            \n                        } else {\n                            frappe.msgprint(`IMEI: ${frm.doc.custom_imei_number} not found.`);\n                        }\n                    }\n                }\n            });\n        } else {\n            frappe.msgprint('Please enter a valid IMEI number.');\n        }\n    }\n});\n",
+  "view": "Form"
+ }
+]
