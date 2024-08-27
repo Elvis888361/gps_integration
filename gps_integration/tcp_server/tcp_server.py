@@ -56,7 +56,8 @@ def parse_avl_data(datas, imei):
     idx += 1
     speed = struct.unpack('>H', data_bytes[idx:idx+2])[0]
     idx += 2
-    imei_no=frappe.get_doc('Vehicle',{'custom_imei_number':imei})
+    imei_test=imei.decode('utf-8').strip()
+    imei_no=frappe.get_doc('Vehicle',{'custom_imei_number':imei_test})
 
     gps_log = frappe.get_doc({
         'doctype': 'GPS Log',
