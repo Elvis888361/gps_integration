@@ -56,6 +56,7 @@ def parse_avl_data(datas, imei):
     idx += 1
     speed = struct.unpack('>H', data_bytes[idx:idx+2])[0]
     idx += 2
+    imei_no=frappe.get_doc('Vehicle',{'custom_imei_number':imei})
 
     gps_log = frappe.get_doc({
         'doctype': 'GPS Log',
@@ -67,6 +68,7 @@ def parse_avl_data(datas, imei):
         'custom_angle': angle,
         'custom_satellites': satellites,
         'speed': speed,
+        'vehicle':imei_no.license_plate,
         'data': datas
     })
     gps_log.insert(ignore_permissions=True)
