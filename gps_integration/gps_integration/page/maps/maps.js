@@ -140,7 +140,7 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
             method: 'frappe.client.get_list',
             args: {
                 doctype: 'GPS Log',
-                fields: ['name', 'latitude', 'longitude', 'device_id', 'modified'],
+                fields: ['name', 'latitude', 'longitude', 'device_id','vehicle', 'modified'],
                 order_by: 'device_id asc, modified desc',
                 filters: [
                     ['latitude', '!=', null],
@@ -169,7 +169,7 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
                             <li class="device-item">
                                 <a href="#" style="text-decoration: none; color: #000;" 
                                    onclick="selectDevice('${location.device_id}')">
-                                   ${location.device_id}
+                                   ${location.vehicle}
                                 </a>
                             </li>
                         `);
