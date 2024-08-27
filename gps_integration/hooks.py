@@ -229,5 +229,12 @@ scheduler_events = {
 
 fixtures = [
     "Client Script",
-    "Custom Field"
+    "Custom Field",
+    {
+        "dt": "DocType",
+        "filters": [
+            ["name", "in", ["GPS Log"]],
+            ["custom", "=", 1]
+        ]
+    }
 ]
