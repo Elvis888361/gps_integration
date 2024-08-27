@@ -4,17 +4,13 @@ import socket
 import threading
 import binascii
 import struct
-import datetime
 from datetime import datetime
 
-
 port = 8083
-
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', port))
 
-def parse_avl_data(datas):
-
+def parse_avl_data(datas, imei):
     data_bytes = bytes.fromhex(datas)
     idx = 0
     idx += 8
@@ -38,7 +34,7 @@ def parse_avl_data(datas):
     dt_object = datetime.fromtimestamp(timestamp_s)
 
     # Format the datetime object to a readable string
-    formatted_date = dt_object.strftime('%Y-%m-%d')
+    formatted_date = dt_object.strftime('%Y-%m-%d %H:%M:%S')
     idx += 8
 
     # Decode Priority (1 byte)
@@ -60,16 +56,19 @@ def parse_avl_data(datas):
     idx += 1
     speed = struct.unpack('>H', data_bytes[idx:idx+2])[0]
     idx += 2
+    imei_no=frappe.get_doc('Vehicle',{'custom_imei_number':imei})
+
     gps_log = frappe.get_doc({
         'doctype': 'GPS Log',
-        'device_id': imei,  # Replace with actual device ID
+        'device_id': imei.decode('utf-8').strip(),  # Decode IMEI properly
         'longitude': longitude,
         'latitude': latitude,
-        'received_at':formatted_date,
+        'received_at': formatted_date,
         'altitude': altitude,
         'custom_angle': angle,
         'custom_satellites': satellites,
         'speed': speed,
+        'vehicle':imei_no.license_plate,
         'data': datas
     })
     gps_log.insert(ignore_permissions=True)
@@ -91,11 +90,15 @@ def parse_avl_data(datas):
 
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
+    
+    # Initialize Frappe context for this thread
+    frappe.init(site="tracking.thelegendsoft.com")
+    frappe.connect()
 
     connected = True
 
-    while connected:
-        try:
+    try:
+        while connected:
             imei = conn.recv(1024)
             if not imei:
                 break
@@ -109,23 +112,19 @@ def handle_client(conn, addr):
 
             received = binascii.hexlify(data)
             datas = received.decode('utf-8')
-            avl_data = parse_avl_data(datas)
+            avl_data = parse_avl_data(datas, imei)
 
             if avl_data:
-                response = f"Record received with timestamp: {avl_data['timestamp']}"
+                response = f"Record received with timestamp: {avl_data.get('timestamp', 'unknown')}"
                 conn.send(response.encode('utf-8'))
             else:
                 print("Invalid data received, no AVL data to send back.")
-
-        except socket.error as e:
-            print(f"Socket error: {e}")
-            break
-
-        except Exception as e:
-            print(f"Error Occurred: {e}")
-            break
-
-    conn.close()
+    except Exception as e:
+        print(f"Error Occurred: {e}")
+    finally:
+        conn.close()
+        frappe.db.commit()
+        frappe.destroy()
 
 def start():
     s.listen()
