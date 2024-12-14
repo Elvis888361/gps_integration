@@ -1,19 +1,19 @@
 {
  "content": null,
- "creation": "2024-08-27 11:46:07.213505",
+ "creation": "2024-09-06 17:45:36.237935",
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2024-09-05 15:00:04.591058",
+ "modified": "2024-09-06 17:45:36.237935",
  "modified_by": "Administrator",
  "module": "Gps Integration",
- "name": "maps",
+ "name": "vehicle-tracking",
  "owner": "Administrator",
- "page_name": "maps",
+ "page_name": "vehicle-tracking",
  "roles": [],
  "script": null,
  "standard": "Yes",
  "style": null,
  "system_page": 0,
- "title": "Maps"
+ "title": "Vehicle Tracking System"
 }

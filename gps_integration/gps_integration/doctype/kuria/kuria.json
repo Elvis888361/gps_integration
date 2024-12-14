@@ -1,0 +1,53 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-09-03 20:11:23.403984",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "satellites",
+  "latitude",
+  "longitude"
+ ],
+ "fields": [
+  {
+   "fieldname": "satellites",
+   "fieldtype": "Data",
+   "label": "satellites"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Data",
+   "label": "latitude"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Data",
+   "label": "longitude"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-09-03 20:12:14.362537",
+ "modified_by": "Administrator",
+ "module": "Gps Integration",
+ "name": "kuria",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

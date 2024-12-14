@@ -8,7 +8,7 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
     // Apply flexbox layout to the main section to include both sidebar and map
     $(wrapper).find('.layout-main-section').css({
         'display': 'flex',
-        'height': '100vh',
+        'height': '100vh', // Full height of the viewport
         'margin': '0',
         'padding': '0'
     });
@@ -19,7 +19,7 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
             width: 250px; 
             background-color: #f8f9fa;
             padding: 20px;
-            border-right: 2px solid #ccc;
+            border-right: 2px solid #ccc; /* Darker border */
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;">
             <h3>Menu</h3>
@@ -30,14 +30,6 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
                 box-sizing: border-box;">
             <ul id="device-menu" style="list-style-type: none; padding: 0;"></ul>
             <p id="no-results" style="display:none; color: red;">No results found.</p>
-            <div id="date-container" style="display: none;">
-                <label for="date-input">Select Date:</label>
-                <input type="date" id="date-input" style="
-                    width: 100%;
-                    padding: 5px;
-                    margin-top: 10px;
-                    box-sizing: border-box;">
-            </div>
         </div>
     `);
 
@@ -49,8 +41,10 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
         'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css',
         'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js'
     ], function() {
+        // Initialize the map centered on Kenya with a zoom level
         var map = L.map('mapid').setView([-1.286389, 36.817223], 7); // Nairobi, Kenya coordinates with a zoom level of 7
 
+        // Define the Google Maps tile layers
         var googleRoadmapLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=AIzaSyCGSIHF40hvNBYRqfQ9P9ykV0FoeWgACaY', {
             attribution: '&copy; <a href="https://maps.google.com">Google Maps</a>'
         });
@@ -87,61 +81,20 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
             'display': 'block'
         });
 
-
+        // Define the custom car icon
         var carIcon = L.icon({
             iconUrl: '/files/car.png',
-            iconSize: [32, 32],
-            iconAnchor: [16, 10]
+            iconSize: [32, 32],       // Size of the icon
+            iconAnchor: [16, 10],     // Point of the icon which will correspond to marker's location
         });
-
-        var markers = {};
-        var polylines = {};
-
-        // Function to load GPS data and plot the path for the selected device and date
-        function loadDevicePath(device_id, selectedDate) {
-            if (polylines[device_id]) {
-                map.removeLayer(polylines[device_id]);
-            }
-
-            frappe.call({
-                method: 'frappe.client.get_list',
-                args: {
-                    doctype: 'GPS Log',
-                    fields: ['latitude', 'longitude', 'modified'],
-                    filters: [
-                        ['device_id', '=', device_id],
-                        ['modified', '>=', selectedDate + ' 00:00:00'],
-                        ['modified', '<=', selectedDate + ' 23:59:59'],
-                        ['latitude', '!=', null],
-                        ['longitude', '!=', null]
-                    ],
-                    order_by: 'modified asc',
-                    limit_page_length: 1000
-                },
-                callback: function(response) {
-                    var pathLocations = response.message;
-                    if (pathLocations.length > 0) {
-                        var latlngs = pathLocations.map(function(location) {
-                            return [location.latitude, location.longitude];
-                        });
-
-                        var polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
-                        polylines[device_id] = polyline;
-
-                        // Fit the map bounds to the polyline
-                        map.fitBounds(polyline.getBounds());
-                    }
-                }
-            });
-        }
 
         // Fetch data from a custom DocType
         frappe.call({
             method: 'frappe.client.get_list',
             args: {
                 doctype: 'GPS Log',
-                fields: ['name', 'latitude', 'longitude', 'device_id','vehicle', 'modified'],
-                order_by: 'device_id asc, modified desc',
+                fields: ['name', 'latitude', 'longitude', 'device_id','vehicle', 'modified','received_at'],
+                order_by: 'device_id asc, modified desc,received_at desc',
                 filters: [
                     ['latitude', '!=', null],
                     ['longitude', '!=', null]
@@ -151,24 +104,27 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
             callback: function(response) {
                 var locations = response.message;
                 var latestLocations = {};
+                var markers = {};
 
+                // Loop through the records and keep only the latest for each device_id
                 locations.forEach(function(location) {
-                    if (!latestLocations[location.device_id]) {
-                        latestLocations[location.device_id] = location;
+                    if (!latestLocations[location.vehicle]) {
+                        latestLocations[location.vehicle] = location;
                     }
                 });
 
+                // Now add markers for the latest locations
                 Object.keys(latestLocations).forEach(function(device_id) {
                     var location = latestLocations[device_id];
                     if (location.latitude && location.longitude) {
                         var marker = L.marker([location.latitude, location.longitude], { icon: carIcon }).addTo(map);
-                        marker.bindPopup(location.device_id);
-                        markers[location.device_id] = marker;
+                        marker.bindPopup(location.vehicle);
+                        markers[location.vehicle] = marker;
 
                         $('#device-menu').append(`
                             <li class="device-item">
                                 <a href="#" style="text-decoration: none; color: #000;" 
-                                   onclick="selectDevice('${location.device_id}')">
+                                   onclick="focusOnMarker('${location.vehicle}')">
                                    ${location.vehicle}
                                 </a>
                             </li>
@@ -178,20 +134,16 @@ frappe.pages['maps'].on_page_load = function(wrapper) {
                     }
                 });
 
-                // Function to handle device selection
-                window.selectDevice = function(device_id) {
-                    // Show the date input when a device is selected
-                    $('#date-container').show();
-
-                    // Set an event listener on the date input
-                    $('#date-input').off('change').on('change', function() {
-                        var selectedDate = $(this).val();
-                        if (selectedDate) {
-                            loadDevicePath(device_id, selectedDate);
-                        }
-                    });
+                // Function to focus on a marker and open its popup
+                window.focusOnMarker = function(deviceName) {
+                    var marker = markers[deviceName];
+                    if (marker) {
+                        map.setView(marker.getLatLng(), 15);
+                        marker.openPopup();
+                    }
                 };
 
+                // Add event listener to search input
                 $('#search-input').on('input', function() {
                     var query = $(this).val().toLowerCase();
                     var hasResults = false;
