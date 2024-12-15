@@ -396,7 +396,8 @@ frappe.pages['vehicle-tracking'].on_page_load = function(wrapper) {
 
                 let routePoints = response.message.map(log => ({
                     location: new google.maps.LatLng(log.latitude, log.longitude),
-                    speed: log.speed
+                    speed: log.speed,
+                    time: log.modified
                 }));
 
                 // Create the polyline with gradient colors based on speed
@@ -421,6 +422,41 @@ frappe.pages['vehicle-tracking'].on_page_load = function(wrapper) {
                 let bounds = new google.maps.LatLngBounds();
                 routePoints.forEach(point => bounds.extend(point.location));
                 map.fitBounds(bounds);
+
+                // Add hover effect for directional arrows
+                routePoints.forEach((point, index) => {
+                    if (index % 10 === 0) { // Adjust the frequency of info windows
+                        let marker = new google.maps.Marker({
+                            position: point.location,
+                            map: map,
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 5,  // Small visible marker
+                                fillColor: '#FF0000',
+                                fillOpacity: 0.8,
+                                strokeColor: '#FFFFFF',
+                                strokeWeight: 1
+                            }
+                        });
+
+                        let infoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div>
+                                    <p>Time: ${point.time}</p>
+                                    <p>Speed: ${point.speed} km/h</p>
+                                </div>
+                            `
+                        });
+
+                        marker.addListener('mouseover', () => {
+                            infoWindow.open(map, marker);
+                        });
+
+                        marker.addListener('mouseout', () => {
+                            infoWindow.close();
+                        });
+                    }
+                });
 
                 // Show route statistics
                 showRouteStatistics(response.message);
