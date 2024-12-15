@@ -25,7 +25,7 @@ frappe.query_reports["Vehicle Tracking Report"] = {
 			"fieldname": "chart",
 			"label": __("Chart"),
 			"fieldtype": "Select",
-			"options": ['bar','line','pie']
+			"options": ['bar','line','pie','heatmap','percentage','axis-mixed']
 		}
 		// Add more filters as needed
 	],
