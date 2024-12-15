@@ -1,0 +1,6 @@
+
+{
+    "js/location_tracker.bundle.js": [
+        "public/js/location_tracker.js"
+    ]
+}

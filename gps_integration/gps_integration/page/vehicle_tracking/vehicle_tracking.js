@@ -159,12 +159,7 @@ frappe.pages['vehicle-tracking'].on_page_load = function(wrapper) {
                         <button class="btn btn-primary btn-sm active" id="map-view"><i class="fa fa-map"></i> Map View</button>
                         <button class="btn btn-primary btn-sm" id="list-view"><i class="fa fa-list"></i> List View</button>
                     </div>
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-info btn-sm active" id="roadmap-view">Roadmap</button>
-                        <button class="btn btn-info btn-sm" id="satellite-view">Satellite</button>
-                        <button class="btn btn-info btn-sm" id="hybrid-view">Hybrid</button>
-                        <button class="btn btn-info btn-sm" id="terrain-view">Terrain</button>
-                    </div>
+              
                     <div class="theme-switcher">
                         <button class="btn btn-outline-secondary btn-sm" id="toggle-theme">
                             <i class="fa fa-moon"></i> Toggle Theme
@@ -355,31 +350,115 @@ frappe.pages['vehicle-tracking'].on_page_load = function(wrapper) {
             routeLayer.setMap(null);
         }
 
+        // Get the current time range selection
+        let timeRange = $('#time-range').val();
+        let filters = [
+            ['device_id', '=', deviceId],
+            ['latitude', '!=', null],
+            ['longitude', '!=', null]
+        ];
+
+        // Add time-based filter
+        if (timeRange !== 'all') {
+            let now = frappe.datetime.now_datetime();
+            let timeDelta;
+            switch (timeRange) {
+                case '1h':
+                    timeDelta = frappe.datetime.add_to_date(now, { hours: -1 });
+                    break;
+                case '24h':
+                    timeDelta = frappe.datetime.add_to_date(now, { days: -1 });
+                    break;
+                case '7d':
+                    timeDelta = frappe.datetime.add_to_date(now, { days: -7 });
+                    break;
+            }
+            filters.push(['modified', '>=', timeDelta]);
+        }
+
         frappe.call({
             method: 'frappe.client.get_list',
             args: {
                 doctype: 'GPS Log',
-                fields: ['latitude', 'longitude', 'modified'],
-                filters: [['device_id', '=', deviceId]],
+                fields: ['latitude', 'longitude', 'modified', 'speed'],
+                filters: filters,
                 order_by: 'modified asc',
-                limit_page_length: 100
+                limit_page_length: 1000  // Increased limit for better route visualization
             },
             callback: function(response) {
-                let routePoints = response.message.map(log => new google.maps.LatLng(log.latitude, log.longitude));
+                if (!response.message || response.message.length === 0) {
+                    frappe.show_alert({
+                        message: __('No route data available for the selected time range.'),
+                        indicator: 'yellow'
+                    });
+                    return;
+                }
+
+                let routePoints = response.message.map(log => ({
+                    location: new google.maps.LatLng(log.latitude, log.longitude),
+                    speed: log.speed
+                }));
+
+                // Create the polyline with gradient colors based on speed
                 routeLayer = new google.maps.Polyline({
-                    path: routePoints,
+                    path: routePoints.map(point => point.location),
                     geodesic: true,
                     strokeColor: '#FF0000',
                     strokeOpacity: 0.5,
-                    strokeWeight: 3
+                    strokeWeight: 3,
+                    icons: [{
+                        icon: {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+                        },
+                        offset: '50%',
+                        repeat: '100px'
+                    }]
                 });
+
                 routeLayer.setMap(map);
 
+                // Fit bounds to show the entire route
                 let bounds = new google.maps.LatLngBounds();
-                routePoints.forEach(point => bounds.extend(point));
+                routePoints.forEach(point => bounds.extend(point.location));
                 map.fitBounds(bounds);
+
+                // Show route statistics
+                showRouteStatistics(response.message);
             }
         });
+    }
+
+    function showRouteStatistics(routeData) {
+        let totalDistance = 0;
+        let maxSpeed = 0;
+        let avgSpeed = 0;
+
+        // Calculate statistics
+        for (let i = 1; i < routeData.length; i++) {
+            const prev = new google.maps.LatLng(routeData[i-1].latitude, routeData[i-1].longitude);
+            const curr = new google.maps.LatLng(routeData[i].latitude, routeData[i].longitude);
+            
+            totalDistance += google.maps.geometry.spherical.computeDistanceBetween(prev, curr);
+            maxSpeed = Math.max(maxSpeed, routeData[i].speed);
+            avgSpeed += routeData[i].speed;
+        }
+
+        avgSpeed = avgSpeed / routeData.length;
+        totalDistance = (totalDistance / 1000).toFixed(2); // Convert to kilometers
+
+        frappe.show_alert({
+            message: `
+                <div style="padding: 10px;">
+                    <h4>Route Statistics</h4>
+                    <p>Total Distance: ${totalDistance} km</p>
+                    <p>Max Speed: ${maxSpeed.toFixed(1)} km/h</p>
+                    <p>Average Speed: ${avgSpeed.toFixed(1)} km/h</p>
+                    <p>Time Range: ${$('#time-range option:selected').text()}</p>
+                    <p>Points Recorded: ${routeData.length}</p>
+                </div>
+            `,
+            indicator: 'blue'
+        }, 10);
     }
 
     // Event listeners
@@ -727,7 +806,7 @@ frappe.pages['vehicle-tracking'].on_page_load = function(wrapper) {
         // Load Google Maps API and initialize the map
         function loadGoogleMapsAPI() {
             const script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCGSIHF40hvNBYRqfQ9P9ykV0FoeWgACaY';
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCGSIHF40hvNBYRqfQ9P9ykV0FoeWgACaY&libraries=geometry';
             script.defer = true;
             script.async = true;
             script.onload = initializeMap;

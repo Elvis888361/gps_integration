@@ -12,7 +12,15 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/gps_integration/css/gps_integration.css"
 # app_include_js = "/assets/gps_integration/js/gps_integration.js"
+# Includes in <head>
+app_include_js = [
+    "/assets/gps_integration/dist/js/gps_integration.js"
+]
 
+# DocType JS
+doctype_js = {
+    "Vehicle": "public/js/vehicle.js"
+}
 # include js, css files in header of web template
 # web_include_css = "/assets/gps_integration/css/gps_integration.css"
 # web_include_js = "/assets/gps_integration/js/gps_integration.js"
