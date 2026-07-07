@@ -4,7 +4,7 @@ app_publisher = "Gps Integration"
 app_description = "Gps Integration"
 app_email = "info@legendsoft.com"
 app_license = "mit"
-# required_apps = []
+required_apps = ["erpnext"]
 
 # Includes in <head>
 # ------------------
