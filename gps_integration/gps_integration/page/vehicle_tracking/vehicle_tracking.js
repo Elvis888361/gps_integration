@@ -842,7 +842,7 @@ frappe.pages['vehicle-tracking'].on_page_load = function(wrapper) {
         // Load Google Maps API and initialize the map
         function loadGoogleMapsAPI() {
             const script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCGSIHF40hvNBYRqfQ9P9ykV0FoeWgACaY&libraries=geometry';
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCMAgc3L9bDbYs2CViPQNy0iuWUQvhV9UI&libraries=geometry';
             script.defer = true;
             script.async = true;
             script.onload = initializeMap;
